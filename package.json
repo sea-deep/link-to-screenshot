@@ -32,7 +32,11 @@
     "automation",
     "headless-chrome",
     "image",
-    "render"
+    "render",
+    "capture",
+    "screenshot-api",
+    "webpage",
+    "chrome"
   ],
   "author": "Dipak",
   "license": "MIT",
