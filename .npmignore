@@ -1,0 +1,15 @@
+node_modules/
+tests/
+coverage/
+jest.config.js
+.git/
+.gitignore
+*.log
+*.tgz
+.DS_Store
+*.png
+*.jpg
+*.webp
+*.pdf
+test_output/
+examples/
