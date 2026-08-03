@@ -1,4 +1,4 @@
-name: Publish to npm
+name: Publish Packages
 
 on:
   release:
@@ -6,8 +6,8 @@ on:
   workflow_dispatch: # Allows manual trigger from GitHub Actions tab
 
 jobs:
-  publish:
-    name: Publish package to npm
+  publish-npm:
+    name: Publish package to npmjs.org
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,3 +34,40 @@ jobs:
 
       - name: Publish to npm with OIDC Provenance
         run: npm publish --access public --provenance
+        continue-on-error: true # Do not fail if version was already published
+
+  publish-gpr:
+    name: Publish to GitHub Packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # Required to publish to GitHub Packages (npm.pkg.github.com)
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js for GitHub Packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Chromium for Puppeteer
+        run: npx puppeteer browsers install chrome
+
+      - name: Run Test Suite
+        run: npm test
+
+      - name: Scope package name for GitHub Packages
+        run: |
+          node -e "const p = require('./package.json'); p.name = '@sea-deep/link-to-screenshot'; require('fs').writeFileSync('package.json', JSON.stringify(p, null, 2));"
+
+      - name: Publish to GitHub Packages (npm.pkg.github.com)
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true # Do not fail if version was already published
